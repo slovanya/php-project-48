@@ -1,6 +1,7 @@
 <?php
 
 namespace Differ\Render\Plain;
+
 use function Functional\flatten;
 
 const ADDED = "Property '%s' was added with value: %s";
