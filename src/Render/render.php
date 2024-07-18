@@ -6,7 +6,7 @@ use function Differ\Render\Stylish\stylish;
 use function Differ\Render\Plain\plain;
 use function Differ\Render\Json\json;
 
-function render($arr, $format)
+function render(array $arr, string $format): mixed
 {
     $formats = [
         'stylish' => function ($ast) {

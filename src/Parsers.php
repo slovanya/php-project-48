@@ -19,7 +19,8 @@ function parse(string $path): mixed
     switch ($extension) {
         case "json":
             return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-        case "yml" || "yaml":
+        case "yml":
+        case "yaml":
             return Yaml::parse($content);
         default:
             throw new \Exception("Format {$extension} not supported.");

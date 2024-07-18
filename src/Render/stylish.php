@@ -7,7 +7,7 @@ const ADDED = '  + ';
 const DELETED = '  - ';
 const UNMODIFIED = '    ';
 
-function stylish($array): string
+function stylish(array $array): string
 {
     $initialString = '{' . "\n";
     $bodyDiff =  getBody($array);
@@ -15,7 +15,7 @@ function stylish($array): string
     return "{$initialString}{$bodyDiff}{$endString}";
 }
 
-function getBody($array, $depth = 0): string
+function getBody(array $array, int $depth = 0): string
 {
     $bodyDiff = array_reduce($array, function ($acc, $data) use ($depth) {
         switch ($data['typeNode']) {
@@ -40,7 +40,7 @@ function getBody($array, $depth = 0): string
     return implode("\n", $bodyDiff);
 }
 
-function renderArray($array, $depth): string
+function renderArray(array $array, int $depth): string
 {
     $keys = array_keys($array);
     $viewArray = array_map(function ($key) use ($array, $depth) {
@@ -54,37 +54,34 @@ function renderArray($array, $depth): string
     return "{$initialString}{$body}{$endString}";
 }
 
-function getIndent($depth): string
+function getIndent(int $depth): string
 {
     $lengthIndent = strlen(TAB_SPACE) * $depth;
     return str_pad('', $lengthIndent, TAB_SPACE);
 }
 
-function renderNodesRemoved($data, $depth): string
+function renderNodesRemoved(mixed $data, int $depth): string
 {
     $prefix = getIndent($depth) . DELETED;
     $value = getValue($data['oldValue'], $depth);
-    $view = "{$prefix}{$data['key']}: $value";
-    return $view;
+    return "{$prefix}{$data['key']}: $value";
 }
 
-function renderNodesAdded($data, $depth): string
+function renderNodesAdded(mixed $data, int $depth): string
 {
     $prefix = getIndent($depth) . ADDED;
     $value = getValue($data['newValue'], $depth);
-    $view = "{$prefix}{$data['key']}: $value";
-    return $view;
+    return "{$prefix}{$data['key']}: $value";
 }
 
-function renderNodesUnchanged($data, $depth): string
+function renderNodesUnchanged(mixed $data, int $depth): string
 {
     $prefix = getIndent($depth) . UNMODIFIED;
     $value = getValue($data['newValue'], $depth);
-    $view = "{$prefix}{$data['key']}: $value";
-    return $view;
+    return "{$prefix}{$data['key']}: $value";
 }
 
-function renderNodesNested($data, $depth): string
+function renderNodesNested(mixed $data, int $depth): string
 {
     $prefix = getIndent($depth) . UNMODIFIED;
     $initialString = "{$prefix}{$data['key']}: {\n";
@@ -93,7 +90,7 @@ function renderNodesNested($data, $depth): string
     return "{$initialString}{$body}{$endString}";
 }
 
-function getValue($value, $depth)
+function getValue(mixed $value, int $depth): mixed
 {
     switch (gettype($value)) {
         case 'boolean':

@@ -1,22 +1,23 @@
 <?php
 
 namespace Differ\Render\Plain;
+use function Functional\flatten;
 
 const ADDED = "Property '%s' was added with value: %s";
 const REMOVED = "Property '%s' was removed";
 const CHANGED = "Property '%s' was updated. From %s to %s";
 const VALUE_IS_ARRAY = "[complex value]";
 
-function plain($ast): string
+function plain(array $ast): string
 {
     $arr = array_map(function ($item) {
         return getPlain($item, '');
     }, $ast);
-    $arr = array_filter(array_flatten($arr));
+    $arr = array_filter(flatten($arr), fn ($item) => $item !== '');
     return implode("\n", $arr);
 }
 
-function getPlain($item, $path)
+function getPlain(mixed $item, mixed $path): string|array
 {
     [
         'typeNode' => $type,
@@ -45,10 +46,10 @@ function getPlain($item, $path)
         case 'added':
             return sprintf(ADDED, $name, $after);
         default:
-            return null;
+            return '';
     }
 }
-function getValue($value)
+function getValue(mixed $value): mixed
 {
     switch (gettype($value)) {
         case 'boolean':
@@ -62,17 +63,4 @@ function getValue($value)
         default:
             return $value;
     }
-}
-
-function array_flatten($array): array
-{
-    $result = array();
-    foreach ($array as $key => $value) {
-        if (is_array($value)) {
-            $result = array_merge($result, array_flatten($value));
-        } else {
-            $result = array_merge($result, array($key => $value));
-        }
-    }
-    return $result;
 }
