@@ -2,61 +2,48 @@
 
 namespace Differ\Differ;
 
-use Symfony\Component\Yaml\Yaml;
-use function Differ\Parsers\parseJson;
-use function Differ\Parsers\parseYaml;
+use function Differ\Parsers\parse;
+use function Differ\Render\render;
 
-function stringify(mixed $key, mixed $value): string
+function genDiff(string $firstFilePath, string $secondFilePath, $format = "stylish")
 {
-    $string = '';
-    if ($value === false) {
-        $string .= "{$key}: false\n";
-    } elseif ($value === true) {
-        $string .= "{$key}: true\n";
-    } else {
-        $string .= "{$key}: {$value}\n";
-    }
-    return $string;
+    $firstArray = parse($firstFilePath);
+    $secondArray = parse($secondFilePath);
+    $diff = makeDiff($firstArray, $secondArray);
+    return render($diff, $format);
+}
+function makeDiff(array $before, array $after)
+{
+    $unionKeys = array_unique(array_merge(array_keys($before), array_keys($after)));
+    sort($unionKeys);
+    return array_map(function ($key) use ($before, $after) {
+        if (array_key_exists($key, $before) && array_key_exists($key, $after)) {
+            if (is_array($before[$key]) && is_array($after[$key])) {
+                $node =  buildNode('nested', $key, null, null, makeDiff($before[$key], $after[$key]));
+            } elseif ($before[$key] === $after[$key]) {
+                $node = buildNode("unchanged", $key, $before[$key], $after[$key]);
+            } else {
+                $node = buildNode("changed", $key, $before[$key], $after[$key]);
+            }
+        }
+        if (array_key_exists($key, $before) && !array_key_exists($key, $after)) {
+            $node = buildNode("removed", $key, $before[$key], null);
+        }
+        if (!array_key_exists($key, $before) && array_key_exists($key, $after)) {
+            $node = buildNode("added", $key, null, $after[$key]);
+        }
+        return $node;
+    }, $unionKeys);
 }
 
-/**
- * @throws \Exception
- */
-function genDiff(string $path1, string $path2): string
+function buildNode($typeNode, $key, $oldValue, $newValue, $children = null): array
 {
-    $path1Ext = pathinfo($path1, PATHINFO_EXTENSION);
-    $path2Ext = pathinfo($path2, PATHINFO_EXTENSION);
-    if ($path1Ext !== $path2Ext) {
-        throw new \Exception('Wrong format');
-    } elseif ($path1Ext === 'json') {
-        $decFile1 = parseJson($path1);
-        $decFile2 = parseJson($path2);
-    } else {
-        $decFile1 = parseYaml($path1);
-        $decFile2 = parseYaml($path2);
-    }
-
-    $merged = array_merge($decFile1, $decFile2);
-    $keys = array_keys($merged);
-    sort($keys);
-    $keys1 = array_keys($decFile1);
-    $keys2 = array_keys($decFile2);
-
-    $string = "{\n";
-    foreach ($keys as $key) {
-        if (in_array($key, $keys1) && in_array($key, $keys2)) {
-            if ($decFile1[$key] !== $decFile2[$key]) {
-                $string .= '  - ' . stringify($key, $decFile1[$key]);
-                $string .= '  + ' . stringify($key, $decFile2[$key]);
-            } else {
-                $string .= '    ' . stringify($key, $merged[$key]);
-            }
-        } elseif (in_array($key, $keys1)) {
-            $string .= '  - ' . stringify($key, $decFile1[$key]);
-        } else {
-            $string .= '  + ' . stringify($key, $decFile2[$key]);
-        }
-    }
-    $string .= "}";
-    return $string;
+    $node = [
+        'typeNode' => $typeNode,
+        'key' => $key,
+        'oldValue' => $oldValue,
+        'newValue' => $newValue,
+        'children' => $children
+    ];
+    return $node;
 }
