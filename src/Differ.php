@@ -12,7 +12,7 @@ function genDiff(string $firstFilePath, string $secondFilePath, $format = "styli
     $diff = makeDiff($firstArray, $secondArray);
     return render($diff, $format);
 }
-function makeDiff(array $before, array $after)
+function makeDiff(array $before, array $after): array
 {
     $unionKeys = array_unique(array_merge(array_keys($before), array_keys($after)));
     sort($unionKeys);

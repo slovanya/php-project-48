@@ -16,7 +16,8 @@
             "src/Differ.php",
             "src/Parsers.php",
             "src/Render/render.php",
-            "src/Render/stylish.php"
+            "src/Render/stylish.php",
+            "src/Render/plain.php"
         ]
     },
     "require": {

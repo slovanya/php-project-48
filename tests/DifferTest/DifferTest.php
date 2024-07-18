@@ -33,4 +33,12 @@ class DifferTest extends TestCase
         $actual = genDiff($old, $new);
         $this->assertEquals($expected, $actual);
     }
+    public function testDiffPlain(): void
+    {
+        $new = __DIR__ . '/../fixtures/new2.json';
+        $old = __DIR__ . '/../fixtures/old2.json';
+        $result2plain = genDiff($old, $new, "plain");
+        $expected2plain = file_get_contents(__DIR__ . "/../fixtures/expected2plain.txt");
+        $this->assertEquals($expected2plain, $result2plain);
+    }
 }
