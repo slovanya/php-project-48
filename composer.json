@@ -17,7 +17,8 @@
             "src/Parsers.php",
             "src/Render/render.php",
             "src/Render/stylish.php",
-            "src/Render/plain.php"
+            "src/Render/plain.php",
+            "src/Render/json.php"
         ]
     },
     "require": {

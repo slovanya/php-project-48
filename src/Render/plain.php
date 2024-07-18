@@ -13,7 +13,7 @@ function plain($ast): string
         return getPlain($item, '');
     }, $ast);
     $arr = array_filter(array_flatten($arr));
-    return implode("\r\n", $arr);
+    return implode("\n", $arr);
 }
 
 function getPlain($item, $path)
