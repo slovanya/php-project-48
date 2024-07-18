@@ -11,25 +11,23 @@ const VALUE_IS_ARRAY = "[complex value]";
 
 function plain(array $ast): string
 {
-    $arr = array_map(function ($item) {
+    return implode("\n", array_filter(flatten(array_map(function ($item) {
         return getPlain($item, '');
-    }, $ast);
-    $arr = array_filter(flatten($arr), fn ($item) => $item !== '');
-    return implode("\n", $arr);
+    }, $ast)), fn($item) => $item !== ''));
 }
 
 function getPlain(mixed $item, mixed $path): string|array
 {
     [
         'typeNode' => $type,
-        'key' =>  $key,
+        'key' => $key,
         'oldValue' => $before,
         'newValue' => $after,
         'children' => $children
     ] = $item;
 
-    $before = getValue($before);
-    $after = getValue($after);
+    $beforeV = getValue($before);
+    $afterV = getValue($after);
     $name = "{$path}{$key}";
     $nameForChildren = "{$path}{$key}.";
     switch ($type) {
@@ -39,17 +37,18 @@ function getPlain(mixed $item, mixed $path): string|array
             }, $children);
 
         case 'changed':
-            return sprintf(CHANGED, $name, $before, $after);
+            return sprintf(CHANGED, $name, $beforeV, $afterV);
 
         case 'removed':
             return sprintf(REMOVED, $name);
 
         case 'added':
-            return sprintf(ADDED, $name, $after);
+            return sprintf(ADDED, $name, $afterV);
         default:
             return '';
     }
 }
+
 function getValue(mixed $value): mixed
 {
     switch (gettype($value)) {

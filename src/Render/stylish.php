@@ -20,24 +20,20 @@ function getBody(array $array, int $depth = 0): string
     $bodyDiff = array_reduce($array, function ($acc, $data) use ($depth) {
         switch ($data['typeNode']) {
             case 'changed':
-                $acc[] = renderNodesRemoved($data, $depth);
-                $acc[] = renderNodesAdded($data, $depth);
-                break;
+                return array_merge($acc, [renderNodesRemoved($data, $depth)], [renderNodesAdded($data, $depth)]);
             case 'unchanged':
-                $acc[] = renderNodesUnchanged($data, $depth);
-                break;
+                return array_merge($acc, [renderNodesUnchanged($data, $depth)]);
             case 'removed':
-                $acc[] = renderNodesRemoved($data, $depth);
-                break;
+                return array_merge($acc, [renderNodesRemoved($data, $depth)]);
             case 'added':
-                $acc[] = renderNodesAdded($data, $depth);
-                break;
+                return array_merge($acc, [renderNodesAdded($data, $depth)]);
             case 'nested':
-                $acc[] = renderNodesNested($data, $depth);
+                return array_merge($acc, [renderNodesNested($data, $depth)]);
+            default:
+                return $acc;
         }
-        return $acc;
     }, []);
-    return implode("\n", $bodyDiff);
+    return implode(PHP_EOL, $bodyDiff);
 }
 
 function renderArray(array $array, int $depth): string
